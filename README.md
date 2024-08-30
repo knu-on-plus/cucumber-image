@@ -1,1 +1,1 @@
-# cucumber_image_processinging
+# cucumber_image_processing
