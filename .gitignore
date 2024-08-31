@@ -1,0 +1,5 @@
+/data
+/attempt
+__pycache__
+*.pyc
+/weights
