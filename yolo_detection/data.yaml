@@ -1,0 +1,5 @@
+train: /home/oi/Desktop/song/cucumber-image/data/oi/train.txt
+val: /home/oi/Desktop/song/cucumber-image/data/oi/val.txt
+
+nc: 1  # 클래스 수 (오이 1개)
+names: ['cucumber']

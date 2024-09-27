@@ -4,3 +4,6 @@ __pycache__
 *.pyc
 /weights
 /temp
+/yolo_detection/oi
+/checkpoints
+*.pt
