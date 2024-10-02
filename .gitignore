@@ -1,6 +1,8 @@
 /data/leaves
 /data/oi
 /data/oi_leaves
+/data/oi_seg
+
 
 /attempt
 __pycache__
