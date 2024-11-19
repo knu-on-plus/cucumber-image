@@ -102,7 +102,19 @@ def resize_images_and_masks(images: List[np.ndarray], masks: List[np.ndarray], t
 
     return resized_images, resized_masks
 
+def ensure_directories_exist(directories):
+    """
+    주어진 경로 목록에 해당하는 디렉터리가 존재하지 않을 경우 생성합니다.
 
+    :param directories: 디렉터리 경로 목록 (리스트 또는 딕셔너리)
+    """
+    if isinstance(directories, dict):
+        directories = directories.values()  # 딕셔너리 값들을 목록으로 변환
+    for directory in directories:
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+            print(f"디렉터리 생성됨: {directory}")
+        else:
+            print(f"디렉터리가 이미 존재합니다: {directory}")
 
-np.random.seed(3)
 

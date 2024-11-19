@@ -52,3 +52,5 @@ def create_empty_coco_format():
             }
         ]
     }
+
+

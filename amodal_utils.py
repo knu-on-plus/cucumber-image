@@ -2,7 +2,6 @@ import json
 import os
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 
 def get_image_paths_from_folder(folder_path, extensions=['.jpg', '.png']):
     image_paths = []
@@ -37,54 +36,36 @@ def get_bbox_from_mask(mask):
     return [x_min, y_min, x_max, y_max]
 
 
-def visualize_merged_amodal_and_modal(merged_image, amodal_mask, modal_mask):
+def mask_to_polygon(binary_mask):
     """
-    합성된 이미지, Amodal 마스크, Modal 마스크를 시각화하는 함수
-    :param merged_image: 합성된 이미지 (RGB)
-    :param amodal_mask: Amodal 마스크 (오이 전체 마스크)
-    :param modal_mask: Modal 마스크 (잎에 의해 가려진 오이 마스크)
+    Convert a binary mask to a COCO segmentation polygon.
     """
-    
-    # Plot 설정
-    fig, axs = plt.subplots(1, 3, figsize=(12, 5))  # 1행 3열 레이아웃
-    
-    # 합성 이미지
-    axs[0].imshow(cv2.cvtColor(merged_image, cv2.COLOR_BGR2RGB))  # BGR을 RGB로 변환
-    axs[0].set_title('Merged Image')
-    axs[0].axis('off')
+    contours, _ = cv2.findContours(binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    polygons = []
+    for contour in contours:
+        contour = contour.flatten().tolist()
+        if len(contour) > 4:  # 최소한의 폴리곤 점이 필요
+            polygons.append(contour)
+    return polygons
 
-    # Amodal 마스크
-    axs[1].imshow(amodal_mask, cmap='gray')
-    axs[1].set_title('Amodal Mask')
-    axs[1].axis('off')
 
-    # Modal 마스크
-    axs[2].imshow(modal_mask, cmap='gray')
-    axs[2].set_title('Modal Mask')
-    axs[2].axis('off')
-
-    plt.subplots_adjust(wspace=0.1)  # 가로 간격을 0.1로 줄이기
-    plt.tight_layout()
-    plt.show()
-
-def visualize_all_masks(cucumber_mask, leaf_mask, overlap_mask):
-    
-    plt.figure(figsize=(10, 5))
-    
-    # 오이 마스크 시각화
-    plt.subplot(1, 3, 1)
-    plt.imshow(cucumber_mask, cmap='gray')
-    plt.title("Cucumber Mask")
-    
-    # 잎 마스크 시각화
-    plt.subplot(1, 3, 2)
-    plt.imshow(leaf_mask, cmap='gray')
-    plt.title("Leaf Mask")
-    
-    # 겹치는 부분(overlap) 시각화
-    plt.subplot(1, 3, 3)
-    plt.imshow(overlap_mask, cmap='gray')
-    plt.title("Modal Mask")
-    
-    plt.tight_layout()
-    plt.show()
+def convert_to_serializable(data):
+    """
+    JSON으로 직렬화 가능한 Python 기본 데이터 타입으로 변환.
+    :param data: 변환할 데이터
+    :return: Python 기본 데이터 타입
+    """
+    if isinstance(data, np.ndarray):
+        return data.tolist()  # numpy 배열을 리스트로 변환
+    elif isinstance(data, (np.int64, np.int32, np.int16)):
+        return int(data)  # numpy 정수를 Python 정수로 변환
+    elif isinstance(data, (np.float64, np.float32, np.float16)):
+        return float(data)  # numpy 실수를 Python 실수로 변환
+    elif isinstance(data, (np.bool_, bool)):
+        return bool(data)  # numpy 논리를 Python 논리로 변환
+    elif isinstance(data, dict):
+        return {k: convert_to_serializable(v) for k, v in data.items()}  # 재귀 처리
+    elif isinstance(data, list):
+        return [convert_to_serializable(v) for v in data]  # 리스트 항목 재귀 처리
+    else:
+        return data  # 이미 직렬화 가능한 경우 반환
