@@ -8,9 +8,9 @@ INPUT_PATHS = {
 }
 
 OUTPUT_PATHS = {
-    "save_dir": "/home/knuvi/Desktop/song/cucumber-image/data/oi_seg/amodal_images3",  # 합성 이미지 저장 디렉토리
-    "mask_save_dir": "/home/knuvi/Desktop/song/cucumber-image/data/oi_seg/modal_masks3",  # Modal 마스크 저장 디렉토리
-    "json_dir": "/home/knuvi/Desktop/song/cucumber-image/data/oi_seg/amodal_info3"  # Amodal 정보 JSON 저장 디렉토리
+    "save_dir": "/home/knuvi/Desktop/song/cucumber-image/data/oi_seg/amodal_images4",  # 합성 이미지 저장 디렉토리
+    "mask_save_dir": "/home/knuvi/Desktop/song/cucumber-image/data/oi_seg/modal_masks4",  # Modal 마스크 저장 디렉토리
+    "json_dir": "/home/knuvi/Desktop/song/cucumber-image/data/oi_seg/amodal_info4"  # Amodal 정보 JSON 저장 디렉토리
 }
 
 # 하이퍼파라미터
