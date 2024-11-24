@@ -21,20 +21,21 @@ def save_image(save_dir, file_name, img, flag=0):
 
 def get_bbox_from_mask(mask):
     """
-    마스크에서 bbox 추출
-    :param mask: 오이 마스크 (0과 255로 구성된 이진 마스크)
-    :return: bbox [x_min, y_min, x_max, y_max]
+    마스크에서 일반적인 [x_min, y_min, x_max, y_max] 형식의 bbox 추출
     """
-    # 마스크에서 255인 영역 (오이) 좌표 찾기
-    coords = np.column_stack(np.where(mask == 255))
-    
-    # 좌상단 (y_min, x_min)과 우하단 (y_max, x_max) 좌표 계산
+    coords = np.column_stack(np.where(mask == 255))  # 마스크 좌표 추출
+    if coords.size == 0:  # 빈 마스크 처리
+        return [0, 0, 0, 0]
     y_min, x_min = coords.min(axis=0)
     y_max, x_max = coords.max(axis=0)
-    
-    # bbox 반환 [x_min, y_min, x_max, y_max]
     return [x_min, y_min, x_max, y_max]
 
+def get_coco_bbox_from_mask(mask):
+    """
+    마스크에서 COCO 포맷 [x_min, y_min, width, height] 형식의 bbox 추출
+    """
+    x_min, y_min, x_max, y_max = get_bbox_from_mask(mask)
+    return [float(x_min), float(y_min), float(x_max - x_min), float(y_max - y_min)]
 
 def mask_to_polygon(binary_mask):
     """
@@ -49,23 +50,21 @@ def mask_to_polygon(binary_mask):
     return polygons
 
 
-def convert_to_serializable(data):
-    """
-    JSON으로 직렬화 가능한 Python 기본 데이터 타입으로 변환.
-    :param data: 변환할 데이터
-    :return: Python 기본 데이터 타입
-    """
-    if isinstance(data, np.ndarray):
-        return data.tolist()  # numpy 배열을 리스트로 변환
-    elif isinstance(data, (np.int64, np.int32, np.int16)):
-        return int(data)  # numpy 정수를 Python 정수로 변환
-    elif isinstance(data, (np.float64, np.float32, np.float16)):
-        return float(data)  # numpy 실수를 Python 실수로 변환
-    elif isinstance(data, (np.bool_, bool)):
-        return bool(data)  # numpy 논리를 Python 논리로 변환
-    elif isinstance(data, dict):
-        return {k: convert_to_serializable(v) for k, v in data.items()}  # 재귀 처리
-    elif isinstance(data, list):
-        return [convert_to_serializable(v) for v in data]  # 리스트 항목 재귀 처리
-    else:
-        return data  # 이미 직렬화 가능한 경우 반환
+def resize_image_and_masks(image, masks, target_size=(768, 1024)):
+    target_width, target_height = target_size
+    original_height, original_width = image.shape[:2]
+    
+    # 이미지 리사이즈
+    resized_image = cv2.resize(image, (target_width, target_height), interpolation=cv2.INTER_LINEAR)
+    
+    # 마스크 리사이즈
+    resized_masks = [
+        cv2.resize(mask, (target_width, target_height), interpolation=cv2.INTER_NEAREST)
+        for mask in masks
+    ]
+    
+    # 스케일 계산
+    scale_x = target_width / original_width
+    scale_y = target_height / original_height
+    
+    return resized_image, resized_masks, scale_x, scale_y

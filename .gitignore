@@ -1,9 +1,5 @@
-/data/leaves
-/data/oi
-/data/oi_leaves
-/data/oi_seg
-
-
+/data
+*.json
 /attempt
 __pycache__
 *.pyc
