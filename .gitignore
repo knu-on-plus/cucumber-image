@@ -9,4 +9,3 @@ __pycache__
 /yolo_detection/leaves*
 /checkpoints
 *.pt
-/jsonformat

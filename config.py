@@ -11,7 +11,7 @@ HYPERPARAMETERS = {
 INPUT_PATHS = {
     "cucumber_images_dir": "/home/knuvi/Desktop/song/cucumber-image/data/oi_seg/images",  # 오이 이미지 디렉토리
     "cucumber_masks_dir": "/home/knuvi/Desktop/song/cucumber-image/data/oi_seg/masks",  # 오이 마스크 디렉토리
-    "leaf_cropped_dir": "/home/knuvi/Desktop/song/cucumber-image/data/oi_seg/selected_cropped_leaves2"  # 잎 객체 디렉토리
+    "leaf_cropped_dir": "/home/knuvi/Desktop/song/cucumber-image/data/oi_seg/cropped_objects/leaves"  # 잎 객체 디렉토리
 }
 
 OUTPUT_PATHS = {
