@@ -37,16 +37,33 @@ def get_coco_bbox_from_mask(mask):
     x_min, y_min, x_max, y_max = get_bbox_from_mask(mask)
     return [float(x_min), float(y_min), float(x_max - x_min), float(y_max - y_min)]
 
-def mask_to_polygon(binary_mask):
+def mask_to_polygon(binary_mask, min_area=60):
+    # Find contours
+    contours, _ = cv2.findContours(binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    polygons = []
+
+    for contour in contours:
+        # Simplify the contour to reduce the number of points
+        epsilon = 0.01 * cv2.arcLength(contour, True)
+        contour = cv2.approxPolyDP(contour, epsilon, True).flatten().tolist()
+
+        # Check if the contour is valid (minimum points and area)
+        if len(contour) > 4 and cv2.contourArea(np.array(contour).reshape(-1, 2)) > min_area:
+            polygons.append(contour)
+    
+    return polygons
+
+def mask_to_polygon(binary_mask, min_contour_area=10):
     """
-    Convert a binary mask to a COCO segmentation polygon.
+    Convert a binary mask to a COCO segmentation polygon, filtering by area.
     """
     contours, _ = cv2.findContours(binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     polygons = []
     for contour in contours:
-        contour = contour.flatten().tolist()
-        if len(contour) > 4:  # 최소한의 폴리곤 점이 필요
-            polygons.append(contour)
+        if cv2.contourArea(contour) >= min_contour_area:  # 최소 크기 필터링
+            contour = contour.flatten().tolist()
+            if len(contour) > 4:  # 최소한의 폴리곤 점이 필요
+                polygons.append(contour)
     return polygons
 
 
