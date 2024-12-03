@@ -127,12 +127,17 @@ def save_image(save_dir, file_name, img, flag=0):
     print(f"{key} 저장됨: {image_save_path}")
     return image_save_path
 
-def get_image_paths_from_folder(folder_path, extensions=['.jpg', '.png']):
+def get_image_paths_from_folder(folder_path, extensions=['.jpg', '.png'], sort=False):
     image_paths = []
     for filename in os.listdir(folder_path):
         if any(filename.endswith(ext) for ext in extensions):
             image_paths.append(os.path.join(folder_path, filename))
+    
+    if sort:
+        image_paths.sort()  # 정렬 수행
+    
     return image_paths
+
 
 
 def get_bbox_from_mask(mask):

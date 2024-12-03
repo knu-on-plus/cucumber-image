@@ -3,22 +3,28 @@
 
 # 하이퍼파라미터
 HYPERPARAMETERS = {
-    "saple_limit": 10000,
+    "dataset_type": 'train', ## [train, valid, debugging]
     "image_index_start": 0,  # 이미지 인덱스 시작값
-    "position": "middle",  # 잎 위치 결정 옵션
-    "occlusion_ratio": 0.5, 
+    "position": "random",  # 잎 위치 결정 옵션 (top, middle, bottom, random)
+    "occlusion_ratio": 0.5,
+    "multi_leaves": 2,  # 다수의 잎 사용 여부 [0: False, 1: top, bottom dual leaves, 2: overlap dual leaves]
+    'random_ratio': True,  # Random ratio 
+    "initial_leaf_ratio": (0.20, 0.4),  # 잎 초기 크기 비율
+    "r_settings": [50, 75, 90],  # Random ratio settings #(0.5, 0.75, 0.9)
+    "r_proportions": [5, 4, 1],  # Random ratio proportions
+    "sort": True,
 }
 # 경로 설정
 INPUT_PATHS = {
-    "cucumber_images_dir": "/home/knuvi/Desktop/song/occlusion-mask-generation/data/splitted/images/train",  # 오이 이미지 디렉토리
-    "cucumber_masks_dir": "/home/knuvi/Desktop/song/occlusion-mask-generation/data/splitted/masks/train",  # 오이 마스크 디렉토리
-    "leaf_cropped_dir": "/home/knuvi/Desktop/song/occlusion-mask-generation/data/splitted/cropped_leaves/train"  # 잎 객체 디렉토리
+    "cucumber_images_dir": "/home/knuvi/Desktop/song/occlusion-mask-generation/data/splitted/images/",  # 오이 이미지 디렉토리
+    "cucumber_masks_dir": "/home/knuvi/Desktop/song/occlusion-mask-generation/data/splitted/masks/",  # 오이 마스크 디렉토리
+    "leaf_cropped_dir": "/home/knuvi/Desktop/song/occlusion-mask-generation/data/splitted/cropped_leaves/"  # 잎 객체 디렉토리
 }
 
 OUTPUT_PATHS = {
-    "save_dir": "/home/knuvi/Desktop/song/occlusion-mask-generation/data/synthesis/amodal_images_resizing_test",  # 합성 이미지 저장 디렉토리
-    "mask_save_dir": "/home/knuvi/Desktop/song/occlusion-mask-generation/data/synthesis/modal_masks_resizing_test",  # Modal 마스크 저장 디렉토리
-    "json_dir": "/home/knuvi/Desktop/song/occlusion-mask-generation/data/synthesis/amodal_info_resizing_test"  # Amodal 정보 JSON 저장 디렉토리
+    "save_dir": "/home/knuvi/Desktop/song/occlusion-mask-generation/data/synthesis/amodal_images_train_condition2",  # 합성 이미지 저장 디렉토리
+    "mask_save_dir": "/home/knuvi/Desktop/song/occlusion-mask-generation/data/synthesis/modal_masks_train_condition2",  # Modal 마스크 저장 디렉토리
+    "json_dir": "/home/knuvi/Desktop/song/occlusion-mask-generation/data/synthesis/amodal_info_train_condition2"  # Amodal 정보 JSON 저장 디렉토리
 }
 
 
