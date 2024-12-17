@@ -2,7 +2,7 @@
 import matplotlib.pyplot as plt
 import cv2
 import numpy as np
-import json
+import json, random
 import os
 from typing import List, Tuple
 
@@ -124,7 +124,7 @@ def save_image(save_dir, file_name, img, flag=0):
     os.makedirs(save_dir, exist_ok=True)  # 저장 경로가 없으면 생성
     image_save_path = os.path.join(save_dir, file_name)
     cv2.imwrite(image_save_path, img)
-    print(f"{key} 저장됨: {image_save_path}")
+    #print(f"{key} 저장됨: {image_save_path}")
     return image_save_path
 
 def get_image_paths_from_folder(folder_path, extensions=['.jpg', '.png'], sort=False):
@@ -132,13 +132,18 @@ def get_image_paths_from_folder(folder_path, extensions=['.jpg', '.png'], sort=F
     for filename in os.listdir(folder_path):
         if any(filename.endswith(ext) for ext in extensions):
             image_paths.append(os.path.join(folder_path, filename))
-    
     if sort:
         image_paths.sort()  # 정렬 수행
     
     return image_paths
 
-
+def random_sample_leaf_paths(leaf_paths, k):
+    """
+    잎 경로 중에서 k개의 샘플을 랜덤하게 선택
+    """
+    if len(leaf_paths) <= k:
+        return leaf_paths  # 잎 경로가 k개보다 적으면 전체 반환
+    return random.sample(leaf_paths, k)
 
 def get_bbox_from_mask(mask):
     """
@@ -158,21 +163,6 @@ def get_coco_bbox_from_mask(mask):
     x_min, y_min, x_max, y_max = get_bbox_from_mask(mask)
     return [float(x_min), float(y_min), float(x_max - x_min), float(y_max - y_min)]
 
-def mask_to_polygon(binary_mask, min_area=60):
-    # Find contours
-    contours, _ = cv2.findContours(binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    polygons = []
-
-    for contour in contours:
-        # Simplify the contour to reduce the number of points
-        epsilon = 0.01 * cv2.arcLength(contour, True)
-        contour = cv2.approxPolyDP(contour, epsilon, True).flatten().tolist()
-
-        # Check if the contour is valid (minimum points and area)
-        if len(contour) > 4 and cv2.contourArea(np.array(contour).reshape(-1, 2)) > min_area:
-            polygons.append(contour)
-    
-    return polygons
 
 def mask_to_polygon(binary_mask, min_contour_area=10):
     """
@@ -185,6 +175,7 @@ def mask_to_polygon(binary_mask, min_contour_area=10):
             contour = contour.flatten().tolist()
             if len(contour) > 4:  # 최소한의 폴리곤 점이 필요
                 polygons.append(contour)
+    #print(f"polygon len : {len(polygons)}")
     return polygons
 
 
@@ -202,18 +193,3 @@ def resize_image_and_masks(image, masks, target_size=(768, 1024)):
     ]
     
     return resized_image, resized_masks
-
-
-
-def resize_leaf_image(leaf_image, cucumber_image):
-    cucumber_h, cucumber_w = cucumber_image.shape[:2]
-    leaf_h, leaf_w = leaf_image.shape[:2]
-
-    # 잎 이미지가 오이 이미지를 초과하면 비율에 맞춰 리사이즈
-    if leaf_h > cucumber_h or leaf_w > cucumber_w:
-        scale = min(cucumber_h / leaf_h, cucumber_w / leaf_w)  # 가장 작은 스케일로 맞춤
-        new_leaf_h = int(leaf_h * scale)
-        new_leaf_w = int(leaf_w * scale)
-        leaf_image = cv2.resize(leaf_image, (new_leaf_w, new_leaf_h), interpolation=cv2.INTER_AREA)
-        print("leaves resized...")
-    return leaf_image

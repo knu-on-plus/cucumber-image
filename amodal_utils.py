@@ -75,16 +75,16 @@ def resize_leaf_to_target_ratio(cucumber_mask, leaf_image, leaf_position, target
         #visualize_resizing(cucumber_mask, temp_leaf_mask, leaf_position, overlap_area, current_ratio, iterations)
 
         # 디버깅 출력
-        print(f"Iteration {iterations}: Overlap Area: {overlap_area}, Leaf Area: {leaf_h * leaf_w}, Current Ratio: {current_ratio:.4f}")
+        #print(f"Iteration {iterations}: Overlap Area: {overlap_area}, Leaf Area: {leaf_h * leaf_w}, Current Ratio: {current_ratio:.4f}")
 
         # 목표 비율에 도달하면 종료
         if abs(current_ratio - target_ratio) < loss_rate:
-            print(f"Target ratio achieved with current ratio: {current_ratio:.4f} after {iterations} iterations.")
+            #print(f"Target ratio achieved with current ratio: {current_ratio:.4f} after {iterations} iterations.")
             break
 
         # 반복 초과 시 종료
         if iterations >= max_iterations:
-            print(f"Error: Maximum iterations ({max_iterations}) reached. Exiting.")
+            #print(f"Error: Maximum iterations ({max_iterations}) reached. Exiting.")
             break
 
         # 크기 조정 비율 계산
@@ -105,7 +105,7 @@ def resize_leaf_to_target_ratio(cucumber_mask, leaf_image, leaf_position, target
         leaf_h, leaf_w = leaf_image.shape[:2]
         iterations += 1
 
-    print("Leaves resized to target ratio.")
+    #print("Leaves resized to target ratio.")
     return leaf_image
 
 def adjust_leaves_to_occlusion(cucumber_mask, leaf_image1, leaf_image2, leaf_location1, leaf_location2, target_ratio):
@@ -189,12 +189,12 @@ def adjust_leaves_to_occlusion(cucumber_mask, leaf_image1, leaf_image2, leaf_loc
         overlap_area = np.sum((cucumber_mask > 0) & (combined_leaf_mask > 0))
         current_ratio = overlap_area / cucumber_area
 
-        print(f"Iteration {iterations}: , Current Ratio: {current_ratio:.4f}")
+        #print(f"Iteration {iterations}: , Current Ratio: {current_ratio:.4f}")
         #visualize_shifting(cucumber_mask, leaf_mask1, leaf_mask2, leaf_location1, leaf_location2, iterations)
 
         # 목표 비율 도달 여부 확인
         if abs(current_ratio - target_ratio) <= loss_rate:
-            print(f"Target ratio met: {current_ratio:.4f}")
+            #print(f"Target ratio met: {current_ratio:.4f}")
             break
 
         # 비율에 따라 중심점 이동
@@ -207,8 +207,8 @@ def adjust_leaves_to_occlusion(cucumber_mask, leaf_image1, leaf_image2, leaf_loc
 
         iterations += 1
 
-    if iterations >= max_iterations:
-        print(f"Warning: Maximum iterations reached. Final ratio: {current_ratio:.4f}")
+    #if iterations >= max_iterations:
+        #print(f"Warning: Maximum iterations reached. Final ratio: {current_ratio:.4f}")
 
     return leaf_location1, leaf_location2
 
@@ -235,8 +235,9 @@ def overlap_dual_leaves(cucumber_mask, leaf_image1, leaf_image2, initial_leaf_ra
     overlapped_leaves[y1_start:y1_start + h1, x1_start:x1_start + w1, :] = leaf_image1
 
     # leaf_image2 배치 (오른쪽)
-    x2_start = w1 - w2 // 2
-    y2_start = (canvas_height - h2) // 2
+    x2_start = max(0, min(w1 - w2 // 2, canvas_width - w2))  # 오른쪽 끝 초과 방지
+    y2_start = max(0, (canvas_height - h2) // 2)
+
     for c in range(4):  # 채널별 병합 (RGBA)
         overlapped_leaves[y2_start:y2_start + h2, x2_start:x2_start + w2, c] = np.where(
             leaf_image2[:, :, 3] > 0,  # 알파 채널이 있는 경우
@@ -284,7 +285,12 @@ def merge_and_crop_leaf(cucumber_image, resized_leaf_image, leaf_position):
 
     return merged_image, leaf_mask
 
-def save_processed_masks(amodal_mask, overlap_mask, modal_mask, image_name, mask_save_dir):
+def save_processed_masks(amodal_mask, overlap_mask, modal_mask, occluder_mask, image_name, mask_save_dir):
+    
+    # 마스크를 PNG 형식으로 저장 (이진화된 값 0 또는 255로 저장)
+    modal_filename = f"{os.path.splitext(image_name)[0]}_occluder_mask.png"
+    occluder_mask_path = save_image(mask_save_dir, modal_filename, amodal_mask)
+    
     # 마스크를 PNG 형식으로 저장 (이진화된 값 0 또는 255로 저장)
     modal_filename = f"{os.path.splitext(image_name)[0]}_amodal_mask.png"
     amodal_mask_path = save_image(mask_save_dir, modal_filename, amodal_mask)
